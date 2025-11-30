@@ -11,7 +11,9 @@
       "EMAILJS_PUBLIC_KEY": "yqWjXsoOH-xzZP9p3",
       "EMAILJS_SERVICE": "service_gi16byh",
       "EMAILJS_TEMPLATE": "template_ez4m3za",
-      "BRAND_COLOR": "#0B6946"
+      "BRAND_COLOR": "#0B6946",
+      "CSV_COUNTERS": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSnJuNLg_Gjih91EwA3Sfr08HVzcjbxF1ZgpKrNl6Io-owFqZccKgK5V5yVndaL40iixC2CLh86Cl2W/pub?gid=0&single=true&output=csv",
+      "CSV_MAP": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSnJuNLg_Gjih91EwA3Sfr08HVzcjbxF1ZgpKrNl6Io-owFqZccKgK5V5yVndaL40iixC2CLh86Cl2W/pub?gid=146498539&single=true&output=csv"
     },
     {
       "slug": "gsi",
@@ -24,7 +26,9 @@
       "EMAILJS_PUBLIC_KEY": "yqWjXsoOH-xzZP9p3",
       "EMAILJS_SERVICE": "service_gi16byh",
       "EMAILJS_TEMPLATE": "template_ez4m3za",
-      "BRAND_COLOR": "#0F6A4A"
+      "BRAND_COLOR": "#0F6A4A",
+      "CSV_COUNTERS": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSnJuNLg_Gjih91EwA3Sfr08HVzcjbxF1ZgpKrNl6Io-owFqZccKgK5V5yVndaL40iixC2CLh86Cl2W/pub?gid=0&single=true&output=csv",
+      "CSV_MAP": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSnJuNLg_Gjih91EwA3Sfr08HVzcjbxF1ZgpKrNl6Io-owFqZccKgK5V5yVndaL40iixC2CLh86Cl2W/pub?gid=146498539&single=true&output=csv"
     },
     {
       "slug": "clappwise",
@@ -35,6 +39,14 @@
       "CALENDLY_URL": "https://calendly.com/clappwise/30min",
       "DECK_LINK": "https://clin345.my.canva.site/presentation-one-child-one-tree",
       "EMAILJS_PUBLIC_KEY": "yqWjXsoOH-xzZP9p3",
+      "EMAILJS_SERVICE": "service_gi16byh",
+      "EMAILJS_TEMPLATE": "template_ez4m3za",
+      "BRAND_COLOR": "#0F4A2F",
+      "CSV_COUNTERS": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSnJuNLg_Gjih91EwA3Sfr08HVzcjbxF1ZgpKrNl6Io-owFqZccKgK5V5yVndaL40iixC2CLh86Cl2W/pub?gid=0&single=true&output=csv",
+      "CSV_MAP": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSnJuNLg_Gjih91EwA3Sfr08HVzcjbxF1ZgpKrNl6Io-owFqZccKgK5V5yVndaL40iixC2CLh86Cl2W/pub?gid=146498539&single=true&output=csv"
+    }
+  ]
+}      "EMAILJS_PUBLIC_KEY": "yqWjXsoOH-xzZP9p3",
       "EMAILJS_SERVICE": "service_gi16byh",
       "EMAILJS_TEMPLATE": "template_ez4m3za",
       "BRAND_COLOR": "#0F4A2F"
