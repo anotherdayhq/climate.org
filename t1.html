@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MTI Mtoto • One Child. One Tree.</title>
+  <meta name="description" content="Live planting dashboard for MTI Mtoto - Every child born in Taita Taveta gets a tree">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { 
+      theme: { 
+        extend: { 
+          colors: { forest: '#0F4A2F', lightgreen: '#D4E4D2' },
+          fontFamily: { display: ['"Playfair Display"', 'serif'], sans: ['Inter', 'sans-serif'] }
+        } 
+      } 
+    }
+  </script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Leaflet Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Leaflet MarkerCluster -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+  <!-- Odometer -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/themes/odometer-theme-default.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/odometer.min.js"></script>
+
+  <!-- PapaParse for CSV -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <!-- EmailJS (official CDN) -->
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+
+  <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+</script>
+<script type="text/javascript">
+   (function(){
+      emailjs.init({
+        publicKey: "yqWjXsoOH-xzZP9p3",
+      });
+   })();
+</script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .odometer.odometer-auto-theme, .odometer.odometer-theme-default {
+      font-size: 4.5rem !important; line-height: 1.1 !important; font-weight: 700 !important; color: #0F4A2F; font-family: 'Inter', sans-serif;
+    }
+    @media (max-width: 768px) {
+      .odometer.odometer-auto-theme, .odometer.odometer-theme-default { font-size: 3rem !important; }
+    }
+    .stat-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 1rem; padding: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.3s ease; }
+    .stat-card:hover { transform: translateY(-5px); }
+    .stat-label { color: #0F4A2F; font-weight: 600; }
+    #map { height: 500px; width: 100%; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .map-info { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius:1rem; padding:1.25rem; color:#0F4A2F; font-weight:600; box-shadow:0 5px 20px rgba(0,0,0,0.2); text-align:center; }
+    .metric-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border:2px solid rgba(212,228,210,0.3); transition: transform 0.3s ease, box-shadow 0.3s ease; color:#0F4A2F; }
+    .metric-card:hover { transform: translateY(-5px); box-shadow:0 20px 40px rgba(212,228,210,0.4); background: rgba(255,255,255,1); }
+    .pulse-on-hover:hover { animation: pulse 0.5s; }
+    @keyframes pulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.05);} }
+
+    /* Thank you big inbox style */
+    .thank-icon { font-size: 96px; line-height: 1; color: #0F4A2F; }
+    .thank-title { font-size: 28px; font-weight: 800; color: #0F4A2F; margin-top: 12px; }
+    .thank-sub { color: #334; margin-top: 8px; }
+  </style>
+</head>
+<body class="bg-black text-white overflow-x-hidden">
+
+    <!-- NAVBAR -->
+<nav id="navbar" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 bg-black/40 backdrop-blur-lg">
+  <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+    <a href="#" class="text-2xl font-bold tracking-wide">
+      MTI Mtoto
+    </a>
+
+    <!-- Desktop Menu -->
+    <div class="hidden md:flex space-x-8 text-lg font-medium">
+      <a href="#map-info" class="hover:text-lightgreen transition">Map</a>
+      <a href="#investors" class="hover:text-lightgreen transition">Investors</a>
+      <a href="#download-section" class="hover:text-lightgreen transition">Pitch Deck</a>
+      <a href="https://calendly.com/clappwise/30min" class="hover:text-lightgreen transition">Book Call</a>
+    </div>
+
+    <!-- Mobile Button -->
+    <button id="menuBtn" class="md:hidden text-xl focus:outline-none">☰</button>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="hidden flex flex-col bg-black/90 px-6 pb-6 space-y-4 text-lg font-medium md:hidden">
+    <a href="#map-info" class="hover:text-lightgreen transition">Map</a>
+    <a href="#investors" class="hover:text-lightgreen transition">Investors</a>
+    <a href="#download-section" class="hover:text-lightgreen transition">Pitch Deck</a>
+    <a href="https://calendly.com/clappwise/30min" class="hover:text-lightgreen transition">Book Call</a>
+  </div>
+</nav>
+
+<!-- HERO SECTION -->
+<div class="relative min-h-screen flex items-center justify-center overflow-hidden py-12">
+  <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover opacity-70">
+    <source src="https://videos.pexels.com/video-files/854613/854613-hd_1920_1080_30fps.mp4" type="video/mp4">
+  </video>
+  <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/90"></div>
+
+  <div class="relative text-center px-6 z-10 max-w-6xl w-full">
+    <img src="https://via.placeholder.com/320x120/0F4A2F/FFFFFF?text=MTI+MTOTO" alt="MTI Mtoto" class="h-20 mx-auto mb-8">
+    <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-4 leading-tight">
+      One Child.<br>One Tree.
+    </h1>
+    <p class="text-lg sm:text-xl md:text-2xl mb-12 font-light">
+      Live impact from Taita Taveta — every newborn celebrated with a tree.
+    </p>
+
+    <!-- Live Counters -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12">
+      <div class="stat-card text-center">
+        <div class="odometer" id="trees">0</div>
+        <p class="text-sm md:text-base mt-2 stat-label">Trees Planted = Children Born</p>
+      </div>
+      <div class="stat-card text-center">
+        <div class="odometer" id="survival">0</div>
+        <p class="text-sm md:text-base mt-2 stat-label">Survival Rate (%)</p>
+      </div>
+      <div class="stat-card text-center">
+        <div class="odometer" id="co2">0</div>
+        <p class="text-sm md:text-base mt-2 stat-label">CO₂ Sequestered (tons)</p>
+      </div>
+      <div class="stat-card text-center">
+        <div class="odometer" id="families">0</div>
+        <p class="text-sm md:text-base mt-2 stat-label">Families Reached</p>
+      </div>
+    </div>
+
+    <!-- CTAs -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+      <a href="#investors" class="bg-forest hover:bg-emerald-900 text-white px-10 py-4 rounded-full text-lg md:text-xl font-semibold transition shadow-lg">
+        Invest Now
+      </a>
+      <a href="tel:+254700000000" class="border-2 border-white hover:bg-white hover:text-black px-10 py-4 rounded-full text-lg md:text-xl font-semibold transition">
+        Contact Us
+      </a>
+    </div>
+    <div id="map-info"></div>
+    <!-- Map Info Banner -->
+    <div class="map-info mb-6">
+      <span id="mapStatus">🌳 Loading planting locations...</span>
+    </div>
+
+    <!-- Embedded Map -->
+    <div id="map"></div>
+  </div>
+</div>
+
+<!-- INVESTOR SECTION -->
+<div class="relative py-20 px-6" id="investors">
+  <div class="max-w-5xl mx-auto">
+
+    <!-- Header -->
+    <div class="text-center mb-16">
+      <div class="inline-block bg-lightgreen text-forest px-6 py-2 rounded-full font-bold mb-6">
+        🌱 FOR INVESTORS
+      </div>
+      <h2 class="text-4xl sm:text-5xl md:text-6xl font-display font-bold mb-6 leading-tight">
+        Invest in Africa's<br>most heartfelt climate solution
+      </h2>
+      <p class="text-lg sm:text-xl md:text-2xl opacity-90 font-light">
+        87% survival • Community-owned • Carbon-ready • $2.80 per verified tree
+      </p>
+    </div>
+
+    <!-- Three key metrics -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-16">
+      <div class="metric-card rounded-2xl p-6 md:p-8 text-center">
+        <h3 class="text-xl md:text-2xl font-bold mb-3 text-forest">Unit Economics</h3>
+        <p class="text-4xl md:text-6xl font-bold text-forest mb-2">$2.80</p>
+        <p class="text-sm md:text-base text-gray-700">per verified tree surviving 20+ years</p>
+      </div>
+      <div class="metric-card rounded-2xl p-6 md:p-8 text-center">
+        <h3 class="text-xl md:text-2xl font-bold mb-3 text-forest">Carbon Pipeline</h3>
+        <p class="text-4xl md:text-6xl font-bold text-forest mb-2">50,000+</p>
+        <p class="text-sm md:text-base text-gray-700">tCO₂e verified credits by 2027</p>
+      </div>
+      <div class="metric-card rounded-2xl p-6 md:p-8 text-center sm:col-span-2 md:col-span-1">
+        <h3 class="text-xl md:text-2xl font-bold mb-3 text-forest">Scalability</h3>
+        <p class="text-4xl md:text-6xl font-bold text-forest mb-2">1M+</p>
+        <p class="text-sm md:text-base text-gray-700">trees across Kenya by 2030</p>
+      </div>
+    </div>
+
+    <!-- Email gate + download via EmailJS -->
+    <div id="download-section" class="bg-white/95 backdrop-blur-lg rounded-3xl p-6 md:p-12 mb-8 border-2 border-lightgreen/50 shadow-2xl text-black">
+      <h3 class="text-2xl md:text-3xl lg:text-4xl font-display font-bold mb-4 text-center text-forest">
+        Get the Pitch Deck
+      </h3>
+      <p class="text-base md:text-lg text-center mb-6 md:mb-8 text-gray-700">
+        Enter your name and email to receive our investor pitch deck via email
+      </p>
+
+      <!-- Form (keeps original design/words) -->
+      <form class="flex flex-col md:flex-row gap-4 max-w-2xl mx-auto" id="deckForm">
+        <input 
+          type="text" 
+          id="name" 
+          placeholder="Your Name" 
+          required
+          class="flex-1 px-6 py-4 rounded-full text-black text-base md:text-lg font-medium focus:outline-none focus:ring-4 focus:ring-forest border-2 border-gray-300 transition"
+        >
+        <input 
+          type="email" 
+          id="email" 
+          placeholder="your@email.com" 
+          required
+          class="flex-1 px-6 py-4 rounded-full text-black text-base md:text-lg font-medium focus:outline-none focus:ring-4 focus:ring-forest border-2 border-gray-300 transition"
+        >
+        <button 
+          type="submit"
+          id="getDeckBtn"
+          class="bg-forest text-white font-bold px-10 py-4 rounded-full text-base md:text-lg hover:bg-emerald-900 transition pulse-on-hover whitespace-nowrap shadow-lg"
+        >
+          Get Deck 📧
+        </button>
+      </form>
+
+      <!-- Thank you message (hidden initially) -->
+      <div id="thankyou-message" class="hidden text-center mt-12 text-forest">
+        <div class="thank-icon">📥</div>
+        <div class="thank-title">Check your inbox!</div>
+        <div class="thank-sub">We've sent you the pitch deck.</div>
+      </div>
+    </div>
+
+    <!-- Calendly -->
+    <div class="text-center mb-12">
+      <p class="text-xl md:text-2xl mb-6 font-light">Ready to discuss your investment?</p>
+      <a 
+        href="https://calendly.com/clappwise/30min?" 
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-block bg-white hover:bg-lightgreen text-forest font-bold px-10 md:px-12 py-4 md:py-5 rounded-full text-lg md:text-xl transition shadow-2xl pulse-on-hover border-2 border-lightgreen"
+      >
+        📅 Book a Call with Danson
+      </a>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center pt-8 border-t border-gray-700">
+      <p class="text-sm text-gray-400">
+        © 2025 MTI Mtoto • <a href="mailto:danson@mtimtoto.org" class="underline hover:text-lightgreen transition">danson@mtimtoto.org</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<!-- SCRIPTS: counters, map, email -->
+<script>
+/* ---------- CONFIG ---------- */
+const CSV_COUNTERS = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSnJuNLg_Gjih91EwA3Sfr08HVzcjbxF1ZgpKrNl6Io-owFqZccKgK5V5yVndaL40iixC2CLh86Cl2W/pub?gid=0&single=true&output=csv';
+const CSV_MAP = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSnJuNLg_Gjih91EwA3Sfr08HVzcjbxF1ZgpKrNl6Io-owFqZccKgK5V5yVndaL40iixC2CLh86Cl2W/pub?gid=146498539&single=true&output=csv';
+
+const EMAILJS_SERVICE = 'service_gi16byh';
+const EMAILJS_TEMPLATE = 'template_ez4m3za';
+const DECK_LINK = 'https://clin345.my.canva.site/presentation-one-child-one-tree'; // your Canva link
+
+/* ---------- ODOMETERS ---------- */
+let odometers = {};
+function initOdometers() {
+  ['trees','survival','co2','families'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el && !odometers[id]) odometers[id] = new Odometer({el:el,value:0,format:'(,ddd)',theme:'default',duration:1500});
+  });
+}
+
+/* ---------- CSV fetch helper ---------- */
+async function fetchCSV(url){
+  const resp = await fetch(url + (url.includes('?') ? '&':'?') + 'cache=' + Date.now(), {cache:'no-store'});
+  if(!resp.ok) throw new Error('HTTP '+resp.status);
+  return await resp.text();
+}
+
+/* ---------- Update Counters ---------- */
+async function updateCounters(){
+  try{
+    const text = await fetchCSV(CSV_COUNTERS);
+    const parsed = Papa.parse(text.trim(), {skipEmptyLines:true});
+    if(!parsed.data||parsed.data.length<2) return;
+    const row = parsed.data[1];
+    const trees = parseInt(String(row[0]||'0').replace(/[^\d]/g,''))||0;
+    const survival = parseFloat(String(row[1]||'0').replace(/[^0-9.]/g,''))||0;
+    const co2 = parseFloat(String(row[2]||'0').replace(/[^0-9.]/g,''))||0;
+    const families = parseInt(String(row[3]||'0').replace(/[^\d]/g,''))||0;
+    if(odometers.trees) odometers.trees.update(trees);
+    if(odometers.survival) odometers.survival.update(Math.round(survival));
+    if(odometers.co2) odometers.co2.update(Math.round(co2));
+    if(odometers.families) odometers.families.update(families);
+    console.log('✅ Counters updated:', {trees,survival,co2,families});
+  } catch(err){
+    console.error('❌ Counter error:', err);
+    // keep trying
+    setTimeout(updateCounters, 10000);
+  }
+}
+
+/* ---------- MAP ---------- */
+let map, clusterGroup, mapInitialized = false;
+function initMap(){
+  if(mapInitialized) return;
+  mapInitialized=true;
+  try{
+    map=L.map('map').setView([-3.42,38.35],11);
+    const streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
+    const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri'});
+    L.control.layers({'Streets':streets,'Satellite':satellite}).addTo(map);
+    loadMapData();
+  } catch(e){
+    console.error('Map init error', e);
+    document.getElementById('mapStatus').textContent = '⚠️ Map failed to initialize.';
+  }
+}
+
+async function loadMapData(){
+  try{
+    const text = await fetchCSV(CSV_MAP);
+    const parsed = Papa.parse(text.trim(), {skipEmptyLines:true});
+    const rows = parsed.data.slice(1);
+    clusterGroup = L.markerClusterGroup({maxClusterRadius:50});
+    let counter=0;
+    rows.forEach(row=>{
+      const lat=parseFloat(row[0]), lng=parseFloat(row[1]), label=row[2]||'Tree';
+      if(isNaN(lat)||isNaN(lng)) return;
+      const marker = L.marker([lat,lng], {
+        title: label,
+        icon: L.icon({ iconUrl:'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize:[30,40], iconAnchor:[15,40] })
+      }).bindPopup(label);
+      clusterGroup.addLayer(marker);
+      counter++;
+    });
+    map.addLayer(clusterGroup);
+    document.getElementById('mapStatus').innerHTML = `🌳 Total locations loaded: ${counter}. Many trees are close together — tap cluster numbers to zoom in.`;
+  } catch(err){
+    console.error('❌ Map error:',err);
+    document.getElementById('mapStatus').innerHTML = '⚠️ Failed to load map data.';
+  }
+}
+
+/* ---------- INIT counters & map ---------- */
+initOdometers();
+updateCounters();
+initMap();
+setInterval(updateCounters,15000);
+
+/* ---------- EMAILJS FORM HANDLER ---------- */
+const deckForm = document.getElementById('deckForm');
+const getDeckBtn = document.getElementById('getDeckBtn');
+const thankyouMessage = document.getElementById('thankyou-message');
+
+function showDebug(obj){
+  try {
+    const box = document.getElementById('debugBox');
+    const pre = document.getElementById('debugPre');
+    if(!box||!pre) return;
+    box.classList.remove('hidden');
+    pre.textContent = JSON.stringify(obj, null, 2);
+  } catch(e){}
+}
+
+deckForm.addEventListener('submit', function(event){
+  event.preventDefault();
+  const investorName = document.getElementById('name').value.trim();
+  const investorEmail = document.getElementById('email').value.trim();
+
+  if(!investorName){ alert('Please enter your name'); return; }
+  if(!investorEmail || !investorEmail.includes('@')){ alert('Please enter a valid email'); return; }
+
+  const templateParams = {
+    user_name: investorName,
+    user_email: investorEmail,
+    reply_to: investorEmail,        // Reply-To so you can reply directly to the investor
+    deck_link: DECK_LINK,
+    from_name: 'MTI Mtoto',
+    from_email: 'danson@mtimtoto.org'
+  };
+
+  // UI: disable button
+  getDeckBtn.disabled = true;
+  getDeckBtn.innerText = 'Sending…';
+
+  console.log('EmailJS send payload:', templateParams);
+  showDebug({event:'send_attempt', payload: templateParams});
+
+  emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
+    .then(function(response){
+      console.log('EmailJS success', response);
+      showDebug({event:'success', response});
+      // Hide form and show big thank-you box per request
+      document.getElementById('download-section').querySelector('form').style.display = 'none';
+      thankyouMessage.classList.remove('hidden');
+      // Optional: scroll to thank you
+      thankyouMessage.scrollIntoView({behavior:'smooth', block:'center'});
+    })
+    .catch(function(err){
+      console.error('EmailJS error', err);
+      showDebug({event:'error', error: err});
+      const message = (err && err.text) ? err.text : 'Email failed. Check console and EmailJS dashboard.';
+      alert('⚠️ ' + message);
+    })
+    .finally(function(){
+      getDeckBtn.disabled = false;
+      getDeckBtn.innerText = 'Get Deck 📧';
+    });
+});
+</script>
+</body>
+</html>
