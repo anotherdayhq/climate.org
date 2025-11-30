@@ -1,0 +1,43 @@
+{
+  "sites": [
+    {
+      "slug": "jm3",
+      "ORG_NAME": "JM3",
+      "LOGO_URL": "https://via.placeholder.com/320x120/0F4A2F/FFFFFF?text=JM3",
+      "CONTACT_PHONE": "+254700111111",
+      "CONTACT_EMAIL": "hello@jm3.org",
+      "CALENDLY_URL": "https://calendly.com/jm3/30min",
+      "DECK_LINK": "https://example.com/jm3-deck",
+      "EMAILJS_PUBLIC_KEY": "yqWjXsoOH-xzZP9p3",
+      "EMAILJS_SERVICE": "service_gi16byh",
+      "EMAILJS_TEMPLATE": "template_ez4m3za",
+      "BRAND_COLOR": "#0B6946"
+    },
+    {
+      "slug": "gsi",
+      "ORG_NAME": "GSI",
+      "LOGO_URL": "https://via.placeholder.com/320x120/1F7A6B/FFFFFF?text=GSI",
+      "CONTACT_PHONE": "+254700222222",
+      "CONTACT_EMAIL": "team@gsi.org",
+      "CALENDLY_URL": "https://calendly.com/gsi/30min",
+      "DECK_LINK": "https://example.com/gsi-deck",
+      "EMAILJS_PUBLIC_KEY": "yqWjXsoOH-xzZP9p3",
+      "EMAILJS_SERVICE": "service_gi16byh",
+      "EMAILJS_TEMPLATE": "template_ez4m3za",
+      "BRAND_COLOR": "#0F6A4A"
+    },
+    {
+      "slug": "clappwise",
+      "ORG_NAME": "Clappwise",
+      "LOGO_URL": "https://via.placeholder.com/320x120/0F4A2F/FFFFFF?text=Clappwise",
+      "CONTACT_PHONE": "+254700333333",
+      "CONTACT_EMAIL": "danson@clappwise.org",
+      "CALENDLY_URL": "https://calendly.com/clappwise/30min",
+      "DECK_LINK": "https://clin345.my.canva.site/presentation-one-child-one-tree",
+      "EMAILJS_PUBLIC_KEY": "yqWjXsoOH-xzZP9p3",
+      "EMAILJS_SERVICE": "service_gi16byh",
+      "EMAILJS_TEMPLATE": "template_ez4m3za",
+      "BRAND_COLOR": "#0F4A2F"
+    }
+  ]
+}
